@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=9">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- UserControl.js library -->
+    <script type="text/javascript" src="../$app/scripts/UserControl.js"></script>
+    
+    <!-- Tailwind CSS CDN for responsive design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!--Cookie test-->
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        
+        /* iPad対応のレスポンシブデザイン */
+        @media (max-width: 768px) {
+            .header-info {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .action-buttons .button-group {
+                display: flex;
+                gap: 12px;
+            }
+            .main-content {
+                padding-bottom: 80px;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .header-info {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .header-info {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .page-title {
+            color: #374151;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 32px;
+            text-align: left;
+            padding: 16px 0;
+            border-bottom: 3px solid #3b82f6;
+        }
+        
+        .detail-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+        
+        .header-info {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .info-item {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            transition: all 0.2s ease;
+        }
+        
+        .info-item:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+        
+        .info-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        
+        .info-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .status-pending {
+            color: #dc2626;
+            background: #fef2f2;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 2px solid #fecaca;
+            display: inline-block;
+        }
+        
+        .status-completed {
+            color: #059669;
+            background: #f0fdf4;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 2px solid #bbf7d0;
+            display: inline-block;
+        }
+        
+        .items-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .items-header {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 20px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .items-count {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .items-table th {
+            background: #f8fafc;
+            color: #374151;
+            font-weight: 600;
+            padding: 16px 12px;
+            text-align: left;
+            border-bottom: 2px solid #e5e7eb;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        
+        .items-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+        
+        .items-table tbody tr {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .items-table tbody tr:hover {
+            background: #f8fafc;
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .items-table tbody tr.selected {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .item-name {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .item-id {
+            font-family: 'Courier New', monospace;
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: #475569;
+        }
+        
+        .quantity {
+            text-align: right;
+            font-weight: 600;
+            color: #059669;
+        }
+        
+        .order-id {
+            text-align: center;
+            font-weight: 500;
+            color: #6366f1;
+        }
+        
+        .ship-order-empty {
+            text-align: center;
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        .update-or {
+            text-align: center;
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        .update-date {
+            text-align: center;
+            color: #9ca3af;
+            font-style: italic;
+        }
+        
+        .action-button {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            min-width: 120px;
+        }
+        
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        }
+        
+        .action-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+        
+        .picking-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+        
+        .ship-order-button {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+        }
+        
+        .ship-order-button:hover {
+            background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+            box-shadow: 0 6px 16px rgba(5, 150, 105, 0.4);
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .back-button {
+            background: #6b7280;
+            margin-right: 12px;
+        }
+        
+        .back-button:hover {
+            background: #4b5563;
+        }
+        
+        .stats-bar {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .total-quantity {
+            font-weight: 600;
+            color: #059669;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <!-- ページタイトル -->
+        <h1 class="page-title" style="font-size:14px; margin-bottom:12px; padding:8px;">納入場所詳細</h1>
+        
+        <!-- 詳細情報カード -->
+        <div class="detail-card">
+            <!-- ヘッダー情報 -->
+            <div class="header-info">
+                <div class="info-item">
+                    <div class="info-label-value-row">
+                        <div class="info-label">納入場所</div>
+                        <div class="info-value" id="DeliveryLocation">東京営業所</div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label-value-row">
+                        <div class="info-label">出荷予定日</div>
+                        <div class="info-value" id="ShipDate">20250911</div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label-value-row">
+                        <div class="info-label">納入状況</div>
+                        <div class="info-value">
+                            <span class="status-pending" id="DeliveryStatus">未済</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label-value-row">
+                        <div class="info-label">出荷場所</div>
+                        <div class="info-value" id="ShipLocation">第一倉庫</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 品目一覧セクション -->
+        <div class="main-content">
+            <div class="items-section" id="itemsSection">
+                <!-- ピッキングボタン -->
+                <button type="button" class="action-button picking-button" id="pickingButton" onclick="startPicking()">
+                    📦 ピッキング
+                </button>
+                
+                <!-- ローディングオーバーレイ -->
+                <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+                    <div class="loading-spinner"></div>
+                </div>
+                
+                <div class="items-header">
+                    <span>出荷指示一覧</span>
+                    <span class="items-count" id="itemsCount">0 品目</span>
+                </div>
+                
+                <!-- 統計バー -->
+                <div class="stats-bar">
+                    <span>選択中: <span id="selectedCount">0</span> 品目</span>
+                    <span class="total-quantity">合計数量: <span id="totalQuantity">0</span></span>
+                </div>
+                
+                <div class="table-container">
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th>選択</th>
+                                <th>品目名</th>
+                                <th>品目ID</th>
+                                <th>品目数</th>
+                                <th>オーダ番号</th>
+                                <th>送り状番号</th>
+                                <th>更新者</th>
+                                <th>更新時間</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsTableBody">
+                            <!-- 品目データがここに挿入されます -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- アクションボタン -->
+            <div class="action-buttons mt-6">
+                <div class="button-group">
+                    <button type="button" class="action-button back-button" onclick="goBack()">
+                        ← 戻る
+                    </button>
+                    <button type="button" class="action-button ship-order-button" id="shipOrderButton" onclick="createShipOrder()">
+                        🚛 出荷オーダー作成
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // 納入場所詳細 UserControl
+        var DeliveryLocationDetail = {
+            
+            // 初期データ
+            currentData: {
+                DeliveryLocation: '東京営業所',
+                ShipDate: '20250911',
+                DeliveryStatus: 'O',
+                ShipLocation: '第一倉庫',
+                Items: []
+            },
+            
+            selectedItems: new Set(),
+            
+            // 初期化
+            init: function() {
+                console.log('Delivery Location Detail initialized');
+                // 修正ST
+                // タイミングをずらす
+                setTimeout(() => {
+                    console.log('Executing after 200ms delay...');
+                    this.loadData();
+                    this.bindEvents();
+                }, 200); 
+                // 修正ED
+            },
+            
+            // データ読み込み
+            loadData: function() {
+                this.showLoading(true);
+                
+                // CSIから詳細データを取得
+                // this.callCSI('GetLocationDetail', [], function(result) {
+                //     if (result && result.success) {
+                //         DeliveryLocationDetail.currentData = result.data;
+                //         DeliveryLocationDetail.displayData(result.data);
+                //     } else {
+                //         // モックデータを使用
+                //         DeliveryLocationDetail.loadMockData();
+                //     }
+                //     DeliveryLocationDetail.showLoading(false);
+                // });
+                
+                // 修正ST
+                //初期データ
+                if (typeof WSForm !== 'undefined') {
+                    WSForm.getVarValue('vJSONResult',function(JSONResult){ 
+                        const data = JSON.parse(JSONResult);
+                        DeliveryLocationDetail.displayData(data); 
+                    });
+                    DeliveryLocationDetail.showLoading(false);
+                }
+
+                // 修正ED
+            },
+            
+            // モックデータ読み込み
+            loadMockData: function() {
+                var mockData = {
+                    DeliveryLocation: '東京営業所',
+                    ShipDate: '20250925',
+                    DeliveryStatus: 'O',
+                    ShipLocation: '第一倉庫',
+                    Items: [
+                        {
+                            CoLine: 1,
+                            Item: 'A01',
+                            Description: 'パネル1',
+                            QtyOrderedConv: 100,
+                            CoNum: 1,
+                            sShipOrderID: '',
+                            ue_Uf_update_time_from_mongoose: '20250911 13:13:00.000'
+
+                        },
+                        {
+                            CoLine: 2,
+                            Item: 'A02',
+                            Description: 'パネル2',
+                            QtyOrderedConv: 200,
+                            CoNum: 2,
+                            sShipOrderID: '',
+                            ue_Uf_update_time_from_mongoose: '20250911 13:13:00.000'
+                        },
+                        {
+                            CoLine: 3,
+                            Item: 'A03',
+                            Description: 'パネル3',
+                            QtyOrderedConv: 300,
+                            CoNum: 3,
+                            sShipOrderID: ''
+                        }
+                    ]
+                };
+                
+                this.currentData = mockData;
+                this.displayData(mockData);
+            },
+            
+            // データ表示
+            displayData: function(data) {
+                // ヘッダー情報更新
+                document.getElementById('DeliveryLocation').textContent = data.DeliveryLocation;
+                document.getElementById('ShipDate').textContent = formatDate(data.ShipDate,'/');
+                document.getElementById('ShipLocation').textContent = data.ShipLocation;
+                
+                var statusElement = document.getElementById('DeliveryStatus');
+                statusElement.textContent = this.getStatusText(data.DeliveryStatus);
+                statusElement.className = this.getStatusClass(data.DeliveryStatus);
+                
+                // 品目テーブル更新
+                this.displayItems(data.Items);
+                
+                // 統計情報更新
+                this.updateStats();
+            },
+            
+            // 品目一覧表示
+            displayItems: function(items) {
+                var tableBody = document.getElementById('itemsTableBody');
+                tableBody.innerHTML = '';
+                
+                document.getElementById('itemsCount').textContent = items.length + ' 品目';
+                
+                items.forEach(function(item, index) {
+                    var row = document.createElement('tr');
+                    row.onclick = function() {
+                        DeliveryLocationDetail.toggleItemSelection(item, row);
+                    };
+
+                    // 修正ST
+                    // JSONの項目名に合わせてID名を修正
+                    row.innerHTML = `
+                        <td>
+                            <input type="checkbox" id="check_${item.CoLine}" onchange="DeliveryLocationDetail.handleCheckboxChange('${item.CoLine}', this)">
+                        </td>
+                        <td><span class="item-name">${item.Description}</span></td>
+                        <td><span class="item-id">${item.Item}</span></td>
+                        <td><span class="quantity">${Number.parseFloat(item.QtyOrderedConv).toLocaleString()}</span></td>
+                        <td><span class="order-id">${item.CoNum}</span></td>
+                        <td><span class="ship-order-empty">${item.sShipOrderID || '-'}</span></td>
+                        <td><span class="update-or">${item.ue_Uf_updator_from_mongoose || '-'}</span></td>
+                        <td><span class="update-date">${formatDate((item.ue_Uf_update_time_from_mongoose || '-'),"/")}</span></td>
+                        
+                        <td hidden><span class="update-date">${item.CoRelease}</span></td>
+                        <td hidden><span class="update-date">${item.RecordDate}</span></td>
+                        <td hidden><span class="update-date">${item.RowPointer}</span></td>
+                        <td hidden><span class="update-date">${item._ItemId}</span></td>
+                    `;
+                    // 修正ED
+                    
+                    tableBody.appendChild(row);
+                });
+                
+                this.currentData.items = items;
+            },
+            
+            // アイテム選択切り替え
+            toggleItemSelection: function(item, row) {
+                var checkbox = document.getElementById('check_' + item.CoLine);
+                checkbox.checked = !checkbox.checked;
+                this.handleCheckboxChange(item.CoLine, checkbox);
+
+                // 修正ST
+                // ピッキング遷移用パラメータ記録
+                WSForm.setVarValue('gItem', item.Item);
+                WSForm.setVarValue('gDescription', item.Description);
+                WSForm.setVarValue('gQtyOrderedConv', item.QtyOrderedConv);
+                // 修正ED
+            },
+            
+            // チェックボックス変更処理
+            handleCheckboxChange: function(itemId, checkbox) {
+                var row = checkbox.closest('tr');
+                
+                if (checkbox.checked) {
+                    this.selectedItems.add(itemId);
+                    row.classList.add('selected');
+                } else {
+                    this.selectedItems.delete(itemId);
+                    row.classList.remove('selected');
+                }
+                
+                this.updateStats();
+                this.notifySelectionChange();
+            },
+            
+            // 統計情報更新
+            updateStats: function() {
+                var selectedCount = this.selectedItems.size;
+                var totalQuantity = 0;
+                
+                this.currentData.items.forEach(function(item) {
+                    if (DeliveryLocationDetail.selectedItems.has(item.CoLine)) {
+                        totalQuantity += Number.parseFloat(item.QtyOrderedConv);
+                    }
+                });
+                
+                document.getElementById('selectedCount').textContent = selectedCount;
+                document.getElementById('totalQuantity').textContent = totalQuantity.toLocaleString();
+                
+                // 出荷オーダーボタンの状態更新
+                var shipButton = document.getElementById('shipOrderButton');
+                shipButton.disabled = selectedCount === 0;
+                shipButton.style.opacity = selectedCount === 0 ? '0.5' : '1';
+            },
+            
+            // 選択変更をCSIに通知
+            notifySelectionChange: function() {
+                if (typeof WSForm !== 'undefined') {
+                    var selectedItems = Array.from(this.selectedItems);
+                    WSForm.setVarValue('SelectedItemIds', JSON.stringify(selectedItems));
+                    WSForm.setVarValue('SelectedItemCount', selectedItems.length);
+                    
+                    // 選択変更イベント生成
+                    WSForm.generate('ItemSelectionChanged', function(result) {
+                        console.log('Selection change event:', result);
+                    });
+                }
+            },
+            
+            // ピッキング開始
+            startPicking: function() {
+                if (this.selectedItems.size === 0) {
+                    alert('ピッキングする品目を選択してください。');
+                    return;
+                }
+                
+                this.showLoading(true);
+                
+                var selectedIds = Array.from(this.selectedItems);
+            
+                if (typeof WSForm !== 'undefined') {
+                    // 修正ST
+                    // ピッキング画面を開くメソッドを呼び出し
+                    WSForm.generate('LinkToPicking');
+                    // 修正ED
+                }else{
+                    // CSIピッキング処理呼び出し
+                    this.callCSI('StartPicking', [selectedIds], function(result) {
+                        DeliveryLocationDetail.showLoading(false);
+                    
+                        if (result && result.success) {
+                            alert('ピッキングを開始しました。');
+                        
+                            // ピッキング画面へ遷移
+                            if (typeof WSForm !== 'undefined') {
+                                WSForm.invoke('OpenPickingScreen', [selectedIds], function(navResult) {
+                                    console.log('Navigation to picking screen:', navResult);
+                                });
+                            }
+                        } else {
+                            alert('ピッキング開始に失敗しました: ' + (result.message || 'Unknown error'));
+                        }
+                    });
+                }
+                DeliveryLocationDetail.showLoading(false);
+            },
+            
+            // 出荷オーダー作成
+            createShipOrder: function() {
+                if (this.selectedItems.size === 0) {
+                    alert('出荷オーダーを作成する品目を選択してください。');
+                    return;
+                }
+                
+                this.showLoading(true);
+                
+                var selectedItems = this.currentData.items.filter(function(item) {
+                    return DeliveryLocationDetail.selectedItems.has(item.CoLine);
+                });
+                
+                var orderData = {
+                    deliveryLocation: this.currentData.deliveryLocation,
+                    shipLocation: this.currentData.shipLocation,
+                    shipDate: this.currentData.shipDate,
+                    items: selectedItems
+                };
+                
+                // CSI出荷オーダー作成処理
+                // this.callCSI('CreateShipOrder', [orderData], function(result) {
+                //     DeliveryLocationDetail.showLoading(false);
+                    
+                //     if (result && result.success) {
+                //         alert('出荷オーダーを作成しました。\nオーダー番号: ' + (result.orderNumber || 'N/A'));
+                        
+                //         // データ再読み込み
+                //         DeliveryLocationDetail.loadData();
+                        
+                //         // 選択クリア
+                //         DeliveryLocationDetail.selectedItems.clear();
+                //         DeliveryLocationDetail.updateStats();
+                //     } else {
+                //         alert('出荷オーダー作成に失敗しました: ' + (result.message || 'Unknown error'));
+                //     }
+                // });
+
+                // 修正ST
+                // アップデートするパラメータ＋キーを設定
+                selectedItems.forEach(function(item, index) {            
+                    WSForm.setVarValue('selectCoNum', item.CoNum);
+                    WSForm.setVarValue('selectCoLine', item.CoLine);
+                    WSForm.setVarValue('selectCoRelease', item.CoRelease);
+                    WSForm.setVarValue('selectRecordDate', item.RecordDate);
+                    WSForm.setVarValue('selectRowPointer', item.RowPointer);
+                    WSForm.setVarValue('selectItemId', item._ItemId);
+                
+                    // アップデートメソッドを呼び出し
+                    WSForm.generate('UpdateShipOrder');
+                });
+                
+                DeliveryLocationDetail.showLoading(false);
+
+                // 更新後データを再取得
+                WSForm.generate('StdFormPredisplay');
+                location.reload();
+                // 修正ED
+            },
+            
+            // 戻る
+            goBack: function() {
+                if (typeof WSForm !== 'undefined') {
+                    // 修正ST
+                    // 検索画面を開くメソッドを呼び出し
+                    WSForm.generate('ReturnToSearch');
+                    // 修正ED
+                } else {
+                    // ブラウザの戻る
+                    if (window.history.length > 1) {
+                        window.history.back();
+                    } else {
+                        window.close();
+                    }
+                }
+            },
+            
+            // CSI API呼び出し
+            callCSI: function(method, params, callback) {
+                if (typeof WSForm !== 'undefined') {
+                    WSForm.invoke.apply(window, [].concat(method, params, callback));
+                } else {
+                    // 開発用モックレスポンス
+                    setTimeout(function() {
+                        if (method === 'StartPicking' || method === 'CreateShipOrder') {
+                            callback({
+                                success: true,
+                                orderNumber: 'SO' + Date.now()
+                            });
+                        } else {
+                            callback({ success: false });
+                        }
+                    }, 1000);
+                }
+            },
+            
+            // ステータスクラス取得
+            getStatusClass: function(status) {
+                // 修正ST
+                // statのcaseをIDOに合わせる
+                switch(status) {
+                    case 'C': return 'status-completed';
+                    case 'F': return 'status-completed';
+                    case 'O': return 'status-pending';
+                    case 'P': return 'status-pending';
+                    default: return 'status-pending';
+                }
+                // 修正ED
+            },
+            
+            // ステータステキスト取得
+            getStatusText: function(status) {
+                // 修正ST
+                // statのcaseをIDOに合わせる
+                switch(status) {
+                    case 'C': return '完了';
+                    case 'F': return '全数済';
+                    case 'O': return '未済';
+                    case 'P': return '計画';
+                    default: return '未済';
+                }
+                // 修正ED
+            },
+            
+            // ローディング表示制御
+            showLoading: function(show) {
+                var overlay = document.getElementById('loadingOverlay');
+                overlay.style.display = show ? 'flex' : 'none';
+            },
+            
+            // イベントバインディング
+            bindEvents: function() {
+                // 全選択チェックボックス（将来追加用）
+                // キーボードショートカット（将来追加用）
+            }
+        };
+        
+        // グローバル関数（HTML内のonclick用）
+        function startPicking() {
+            DeliveryLocationDetail.startPicking();
+        }
+        
+        function createShipOrder() {
+            DeliveryLocationDetail.createShipOrder();
+        }
+        
+        function goBack() {
+            DeliveryLocationDetail.goBack();
+        }
+
+        function formatDate(date, sep="") {
+            var formattedDate = date;
+            if(formattedDate.length >=8){
+                formattedDate = date.slice(0,4) + sep + date.slice(4,6) + sep + date.slice(6,8);
+            }
+
+            return formattedDate;
+        }
+        
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            DeliveryLocationDetail.init();
+        });
+        
+        // CSI統合用の外部呼び出し関数
+        if (typeof WSForm !== 'undefined') {
+            // CSIから詳細データを設定
+            window.setLocationDetail = function(data) {
+                DeliveryLocationDetail.currentData = data;
+                DeliveryLocationDetail.displayData(data);
+            };
+            
+            // CSIから選択状態をリセット
+            window.clearSelection = function() {
+                DeliveryLocationDetail.selectedItems.clear();
+                var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(function(cb) {
+                    cb.checked = false;
+                });
+                var rows = document.querySelectorAll('#itemsTableBody tr');
+                rows.forEach(function(row) {
+                    row.classList.remove('selected');
+                });
+                DeliveryLocationDetail.updateStats();
+            };
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,371 @@
+# ArrivalLocationDetail C# FormScript 定義ファイル
+# このYAMLファイルから ArrivalLocationDetail.cs を生成します
+
+# メタ情報
+metadata:
+  name: ArrivalLocationDetail
+  description: "納入場所詳細管理FormScript"
+  namespace: Mongoose.FormScripts
+  version: "1.0.0"
+  generated_from: "ArrivalLocationDetail.md"
+
+# 参照設定
+references:
+  - Newtonsoft.Json.dll
+
+# using文
+usings:
+  - System
+  - Mongoose.IDO.Protocol
+  - Mongoose.Scripting
+  - Mongoose.Core.Common
+  - Mongoose.Core.DataAccess
+  - System.Collections.Generic
+  - System.IO
+  - System.Linq
+  - System.Net
+  - System.Text
+  - System.Web
+  - Newtonsoft.Json
+
+# グローバル変数定義
+global_variables:
+  - name: gIDOName
+    type: string
+    value: "ue_ADV_SLCoitems"
+    description: "ターゲットIDO名"
+    
+  - name: gSSO
+    type: string
+    value: "1"
+    description: "SSOの使用、基本は1　1：はい　0：いいえ"
+    
+  - name: gServerId
+    type: string
+    value: "0"
+    description: "APIサーバのID、詳しくはAPIサーバ関連"
+    
+  - name: gSuiteContext
+    type: string
+    value: "CSI"
+    description: "APIスイートのコンテキスト、同上"
+    
+  - name: gContentType
+    type: string
+    value: "application/json"
+    description: "返り値のタイプ、基本設定不要もしくは\"application/json\""
+    
+  - name: gTimeout
+    type: string
+    value: "10000"
+    description: "タイムアウト設定"
+    
+  - name: gSiteName
+    type: string
+    value: "Q72Q74BY8XUT3SKY_TRN_AJP"
+    description: "ターゲットIDOが存在するサイト名"
+
+# データクラス定義（業務固有）
+data_classes:
+  - name: cItem
+    description: "取得データ、更新データ作成のクラス"
+    properties:
+      - name: Item
+        type: string
+        json_property: "Item"
+        description: "品目コード"
+        
+      - name: Description
+        type: string
+        json_property: "Description"
+        description: "品目説明"
+        
+      - name: QtyOrderedConv
+        type: string
+        json_property: "QtyOrderedConv"
+        description: "注文数量"
+        
+      - name: QtyShipped
+        type: string
+        json_property: "QtyShipped"
+        description: "出荷済数量"
+        
+      - name: CoNum
+        type: string
+        json_property: "CoNum"
+        description: "オーダー番号"
+        
+      - name: ue_Uf_update_time_from_mongoose
+        type: string
+        json_property: "ue_Uf_update_time_from_mongoose"
+        description: "更新日時"
+        
+      - name: ue_Uf_updator_from_mongoose
+        type: string
+        json_property: "ue_Uf_updator_from_mongoose"
+        description: "更新者"
+        
+      - name: CoLine
+        type: string
+        json_property: "CoLine"
+        description: "オーダー明細行"
+        
+      - name: CoRelease
+        type: string
+        json_property: "CoRelease"
+        description: "リリース番号"
+        
+      - name: RecordDate
+        type: string
+        json_property: "RecordDate"
+        description: "レコード日付"
+        
+      - name: RowPointer
+        type: string
+        json_property: "RowPointer"
+        description: "行ポインタ"
+        
+      - name: _ItemId
+        type: string
+        json_property: "_ItemId"
+        description: "アイテムID"
+
+  - name: WebJSONObject
+    description: "web対応JSON整形用クラス"
+    properties:
+      - name: DeliveryLocation
+        type: string
+        json_property: "DeliveryLocation"
+        description: "納入場所"
+        
+      - name: ShipDate
+        type: string
+        json_property: "ShipDate"
+        description: "出荷予定日"
+        
+      - name: ShipLocation
+        type: string
+        json_property: "ShipLocation"
+        description: "出荷場所（倉庫）"
+        
+      - name: DeliveryStatus
+        type: string
+        json_property: "DeliveryStatus"
+        description: "納入状況"
+        
+      - name: Items
+        type: "List<cItem>"
+        json_property: "Items"
+        description: "品目リスト"
+
+# 業務固有メソッド定義
+business_methods:
+  - name: callAPI
+    access: public
+    return_type: void
+    description: "APIを呼び出してデータ取得・グリッド表示を行う"
+    parameters:
+      - name: mode
+        type: int
+        description: "操作モード（0:取得, 1:挿入, 2:更新, 4:削除）"
+    
+    # プロパティリスト定義（取得モード）
+    properties_get:
+      - name: Item
+        modified: true
+        
+      - name: Description
+        modified: true
+        
+      - name: QtyOrderedConv
+        modified: true
+        
+      - name: QtyShipped
+        modified: true
+        
+      - name: CoNum
+        modified: false
+        
+      - name: ue_Uf_update_time_from_mongoose
+        modified: true
+        
+      - name: ue_Uf_updator_from_mongoose
+        modified: true
+        
+      - name: RecordDate
+        modified: true
+        
+      - name: RowPointer
+        modified: true
+        
+      - name: _ItemId
+        modified: true
+        
+      - name: CoLine
+        modified: false
+        
+      - name: CoRelease
+        modified: false
+    
+    # プロパティリスト定義（更新モード）
+    properties_update:
+      - name: ue_Uf_update_time_from_mongoose
+        value_source: "timestamp"
+        modified: true
+        
+      - name: ue_Uf_updator_from_mongoose
+        value_source: "variable:User"
+        modified: true
+        
+      - name: CoNum
+        value_source: "variable:selectCoNum"
+        modified: false
+        
+      - name: CoLine
+        value_source: "variable:selectCoLine"
+        modified: false
+        
+      - name: CoRelease
+        value_source: "variable:selectCoRelease"
+        modified: false
+        
+      - name: RecordDate
+        value_source: "variable:selectRecordDate"
+        modified: true
+        mode_exclude: [1]
+        
+      - name: RowPointer
+        value_source: "variable:selectRowPointer"
+        modified: true
+        mode_exclude: [1]
+        
+      - name: _ItemId
+        value_source: "variable:selectItemId"
+        modified: true
+        mode_exclude: [1]
+
+  - name: GenerateFilter
+    access: private
+    return_type: string
+    description: "フィルター文字列を自動生成する"
+    filter_conditions:
+      - variable: gCoNum
+        field: CoNum
+        
+      - variable: gStat
+        field: Stat
+
+  - name: GenerateWebSetJson
+    access: private
+    return_type: string
+    description: "web用データをJSON文字列を生成"
+    parameters:
+      - name: resultList
+        type: "List<cItem>"
+        description: "整形結果リスト"
+    
+    web_json_mapping:
+      - target: DeliveryLocation
+        source: "variable:gAdr0Name"
+        
+      - target: ShipDate
+        source: "variable:gProjectedDate"
+        
+      - target: ShipLocation
+        source: "variable:gWhse"
+        
+      - target: DeliveryStatus
+        source: "variable:gStat"
+        
+      - target: Items
+        source: "parameter:resultList"
+
+  - name: setParameterFormRun
+    access: public
+    return_type: void
+    description: "画面遷移時の変数設定"
+    is_placeholder: true
+
+# 共通処理で使用するクラス（178行目以降）
+# CommonTailシートに相当
+common_classes:
+  - name: getJSONObject
+    description: "JSONからデータ取得用のクラス"
+    properties:
+      - name: Items
+        type: "List<cItem>"
+        json_property: "Items"
+
+  - name: Property
+    description: "一番内側の Properties 配列の要素を表すクラス"
+    properties:
+      - name: Modified
+        type: bool
+        json_property: "Modified"
+        
+      - name: Value
+        type: string
+        json_property: "Value"
+        
+      - name: IsNull
+        type: bool
+        json_property: "IsNull"
+        default_value: false
+        
+      - name: Name
+        type: string
+        json_property: "Name"
+
+  - name: Change
+    description: "Changes 配列の要素を表すクラス"
+    properties:
+      - name: Action
+        type: int
+        json_property: "Action"
+        
+      - name: ItemNo
+        type: int
+        json_property: "ItemNo"
+        default_value: 0
+        
+      - name: UpdateLocking
+        type: int
+        json_property: "UpdateLocking"
+        default_value: 0
+        
+      - name: Properties
+        type: "List<Property>"
+        json_property: "Properties"
+        default_value: "new List<Property>()"
+        
+      - name: ItemId
+        type: string
+        json_property: "ItemId"
+
+  - name: UpdateJSONObject
+    description: "JSON全体のルートオブジェクトを表すクラス"
+    properties:
+      - name: Changes
+        type: "List<Change>"
+        json_property: "Changes"
+        default_value: "new List<Change>()"
+        
+      - name: IDOName
+        type: string
+        json_property: "IDOName"
+
+# 共通メソッド（178行目以降）
+common_methods:
+  - name: getData
+    access: private
+    return_type: string
+    description: "データをアップデート・取得する"
+    is_common: true
+    source: common_tail
+
+  - name: GenerateChangeSetJson
+    access: private
+    return_type: string
+    description: "Update用JSON文字列を自動生成する"
+    is_common: true
+    source: common_tail

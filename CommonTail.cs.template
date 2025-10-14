@@ -1,0 +1,143 @@
+      /// <summary>
+      /// データをアップデート・取得する
+      /// </summary>
+      /// <param name="mode">操作モード（0:取得, 1:挿入, 2:更新, 4:削除）</param>
+      /// <param name="IDOName">IDO名</param>
+      /// <param name="propertiesList">プロパティリスト</param>
+      /// <returns>APIレスポンスのJSON文字列</returns>      
+      private string getData(int mode ,string IDOName ,List<Property> propertiesList){
+         // 呼び出すAPIを設定
+         string sso = gSSO;                        // SSOの使用、基本は1　1：はい　0：いいえ
+         string serverId = gServerId;              // APIサーバのID、詳しくはAPIサーバ関連
+         string suiteContext = gSuiteContext;      // APIスイートのコンテキスト、同上
+         string httpMethod = "";                   // APIメソッドのHTTP接続し設定、同上
+         string methodName = "";                   // APIメソッドの名前、同上、IDO名以降の部分は動的にできそう
+         string parameters = "";                   // APIパラメータ設定、一部パラメータはメソッド名で設定できるが、ここはURL上で設定できない部分を書く（ヘッダーなど）
+         string contentType = gContentType;        // 返り値のタイプ、基本設定不要もしくは"application/json"
+         string timeout = gTimeout;                // タイムアウト設定
+
+         // 使用するメソッド（APIのエンドポイント）を設定
+         if(mode == 0){
+            // getの場合
+            httpMethod = "GET";
+            // APIのURL + IDO名 + 取得プロパティ
+            methodName = $"/IDORequestService/ido/load/{IDOName}?properties={string.Join( ", ", propertiesList.Select(p => p.Name) )}{GenerateFilter()}";
+         }
+         else{
+            // postの場合
+            httpMethod = "POST";
+            // APIのURL + IDO名 + 取得パラメータ
+            methodName = $"/IDORequestService/ido/update/{IDOName}?refresh=true";
+         }
+
+         // パラメータのHeader部分（基本共通）
+         string headerTemp = $"{{\"Name\":\"X-Infor-MongooseConfig\",\"Type\":\"Header\",\"Value\":\"{gSiteName}\"}}";
+
+         // パラメータを設定
+         if(mode == 0){
+            // getの場合
+            // 基本Headerのみ
+            parameters = $"[{headerTemp}]";
+         }
+         else{
+            // postの場合
+            // Body部分、動的生成する必要がある
+            string bodyTemp = $"{{\"Name\":\"Body\",\"Type\":\"Body\",\"Value\":\'{GenerateChangeSetJson(mode,IDOName,propertiesList)}\'}}";
+
+            // 結合
+            parameters = $"[{headerTemp},{bodyTemp}]";;
+            
+         }
+
+         // API呼び出し
+         InvokeRequestData IDORequest = new InvokeRequestData();  //APIメソッド呼び出し用
+         InvokeResponseData response;                             //結果受け取り用
+
+         // API呼び出すためのIDOメソッドを設定
+         // APIを直で呼び出せないため、IDOメソッドを経由
+         // また、LoadCollectionメソッドは同アプリ（mongoose）同サイト（default）のみ呼び出すため不採用
+         IDORequest.IDOName = "IONAPIMethods";
+         IDORequest.MethodName = "InvokeIONAPIMethod";
+
+         // パラメータ設定
+         IDORequest.Parameters.Add(new InvokeParameter(sso));
+         IDORequest.Parameters.Add(new InvokeParameter(serverId));
+         IDORequest.Parameters.Add(new InvokeParameter(suiteContext));
+         IDORequest.Parameters.Add(new InvokeParameter(httpMethod));
+         IDORequest.Parameters.Add(new InvokeParameter(methodName));
+         IDORequest.Parameters.Add(new InvokeParameter(parameters));
+         IDORequest.Parameters.Add(new InvokeParameter(contentType));
+         IDORequest.Parameters.Add(new InvokeParameter(timeout));
+         IDORequest.Parameters.Add(new InvokeParameter(IDONull.Value)); //ResponseCode
+         IDORequest.Parameters.Add(new InvokeParameter(IDONull.Value)); //ResponseContent
+         IDORequest.Parameters.Add(new InvokeParameter(IDONull.Value)); //ResponseHeaders
+         IDORequest.Parameters.Add(new InvokeParameter(IDONull.Value)); //ResponseInfobar
+
+         // メソッド呼び出し
+         response = IDOClient.Invoke(IDORequest);
+
+         // エラーハンドラ
+         if (response.IsReturnValueStdError())
+         {
+            // get infobar output parameter
+            string errorMsg = null;
+            errorMsg = response.Parameters[8].Value;
+            errorMsg += "\r\n" + response.Parameters[11].Value;
+            throw new Exception(string.Format("Trigger of IONAPI Method Failed : {0}", errorMsg));
+         }
+
+         // getの場合
+         if(mode == 0){
+            //データを画面に表示
+            return response.Parameters[9].Value;
+         }
+
+         // postの場合
+         // データや_itemIDの更新後の状況を取得するため、getで再帰呼び出し
+         //return getData(0, IDOName, propertiesList);
+
+         // webに移行、grid更新する必要がなくなった
+         return "";
+      }
+
+      /// <summary>
+      /// Update用JSON文字列を自動生成する
+      /// </summary>
+      /// <param name="mode">操作モード（0:取得, 1:挿入, 2:更新, 4:削除）</param>
+      /// <param name="IDOName">IDO名</param>
+      /// <param name="propertiesList">プロパティリスト</param>
+      /// <returns>Update用JSON文字列</returns>
+      private string GenerateChangeSetJson(int mode ,string IDOName ,List<Property> propertiesList)
+      {
+         // 1. ルートオブジェクトを作成
+         var root = new UpdateJSONObject
+         {
+            IDOName = IDOName
+         };
+
+         // 2. Changeオブジェクトを作成
+         var change = new Change
+         {
+            Action = mode,
+            ItemId = "new1"
+         };
+
+         foreach(Property prop in propertiesList){
+            // 3. Propertyオブジェクトを必要な分だけ作成し、Changeオブジェクトのリストに追加
+            change.Properties.Add(prop);
+
+            //キー指定する場合、ItemIDを指定されたキーと同値にする（mode = 2,4のみ）
+            if(!prop.Modified && change.ItemId == "new1"){
+               change.ItemId = prop.Value;
+            }
+         }
+
+         // 4. Changeオブジェクトをルートオブジェクトのリストに追加
+         root.Changes.Add(change);
+
+         // 5. オブジェクトをJSON文字列にシリアライズ
+         // Formatting.Indented を付けると整形された見やすいJSONが出力される
+         string jsonString = JsonConvert.SerializeObject(root, Formatting.Indented);
+
+         return jsonString;
+      }

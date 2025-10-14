@@ -1,0 +1,26 @@
+# 生成されたファイル（必要に応じてコメントアウト）
+# Generated_*.cs
+
+# Excelの一時ファイル
+~$*.xlsx
+~$*.xlsm
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+bin/
+obj/
+
+# 一時ファイル
+*.tmp
+*.bak
+*.swp
+*~
+
+# ログファイル
+*.log
