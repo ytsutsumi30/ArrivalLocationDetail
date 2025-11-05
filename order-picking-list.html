@@ -252,21 +252,23 @@
         
         .quantity-section {
             width: 100%;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .quantity-item {
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            gap: 8px;
         }
         
         .quantity-label {
             font-size: 9px;
             color: #666;
-            margin-bottom: 3px;
             font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
         
         .quantity-box {
@@ -274,7 +276,8 @@
             border: 2px solid #333;
             border-radius: 4px;
             padding: 6px 10px;
-            width: 100%;
+            min-width: 100px;
+            flex: 1;
             min-height: 40px;
             display: flex;
             align-items: center;
@@ -286,7 +289,8 @@
             border: 1px solid #e0e0e0;
             border-radius: 4px;
             padding: 6px 10px;
-            width: 100%;
+            min-width: 100px;
+            flex: 1;
             min-height: 40px;
             display: flex;
             align-items: center;
