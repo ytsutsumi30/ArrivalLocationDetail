@@ -252,23 +252,21 @@
         
         .quantity-section {
             width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
         }
         
         .quantity-item {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            flex-direction: column;
         }
         
         .quantity-label {
             font-size: 9px;
             color: #666;
+            margin-bottom: 3px;
             font-weight: 600;
-            white-space: nowrap;
-            flex-shrink: 0;
         }
         
         .quantity-box {
@@ -276,8 +274,7 @@
             border: 2px solid #333;
             border-radius: 4px;
             padding: 6px 10px;
-            min-width: 100px;
-            flex: 1;
+            width: 100%;
             min-height: 40px;
             display: flex;
             align-items: center;
@@ -289,8 +286,7 @@
             border: 1px solid #e0e0e0;
             border-radius: 4px;
             padding: 6px 10px;
-            min-width: 100px;
-            flex: 1;
+            width: 100%;
             min-height: 40px;
             display: flex;
             align-items: center;
@@ -415,6 +411,74 @@
             margin-right: 2px;
             margin-left: 2px;
             color: #666;
+        }
+        
+        .tracking-number-section {
+            margin-top: 8px;
+            padding: 8px;
+            background: #f0f7ff;
+            border: 1px solid #cce5ff;
+            border-radius: 4px;
+        }
+        
+        .tracking-label {
+            font-size: 11px;
+            color: #666;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        
+        .tracking-input-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .tracking-input {
+            flex: 1;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 4px;
+            border: 2px solid #333;
+            outline: none;
+            font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .tracking-input:focus {
+            border-color: #0066cc;
+            box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+        }
+        
+        .btn-camera {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+            background: #0066cc;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .btn-camera:hover {
+            background: #0052a3;
+        }
+        
+        .btn-camera:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-camera svg {
+            width: 20px;
+            height: 20px;
         }
         
         .button-area {
@@ -602,6 +666,23 @@
             <div class="info-value">石川県小松市光町93</div>
         </div>
 
+        <!-- 送り状番号入力セクション -->
+        <div class="tracking-number-section">
+            <div class="tracking-label">送り状番号</div>
+            <div class="tracking-input-wrapper">
+                <input type="text" 
+                       class="tracking-input" 
+                       id="trackingNumber" 
+                       placeholder="送り状番号を入力">
+                <button class="btn-camera" onclick="startOCRCamera()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                    AI-OCR
+                </button>
+            </div>
+        </div>
 
         <!-- ボタンエリア -->
         <div class="button-area">
@@ -640,12 +721,46 @@
             }
         }
 
+        // AI-OCRカメラ起動
+        function startOCRCamera() {
+            console.log('AI-OCRカメラを起動します');
+            
+            // 実際のシステムでは、カメラAPIまたはOCRライブラリを呼び出し
+            // 例: navigator.mediaDevices.getUserMedia() を使用してカメラにアクセス
+            
+            // デモ用: ランダムな送り状番号を生成
+            const demoTrackingNumber = '1234-5678-' + Math.floor(Math.random() * 10000);
+            
+            if (confirm('AI-OCRカメラを起動します。\n※実装時はカメラで送り状を撮影してOCR処理を行います。')) {
+                // デモ: 疑似的にOCR結果を入力
+                document.getElementById('trackingNumber').value = demoTrackingNumber;
+                alert('送り状番号を取得しました: ' + demoTrackingNumber);
+            }
+            
+            // 実装例（カメラアクセス）:
+            // navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            //     .then(stream => {
+            //         // カメラストリームを表示
+            //         // OCR処理を実行
+            //     })
+            //     .catch(err => {
+            //         console.error('カメラアクセスエラー:', err);
+            //     });
+        }
+
         // 処理ボタンの処理
         function processOrder() {
             // 実際のシステムでは出荷処理を実行
-            if (confirm('出荷処理を実行しますか？\n受注番号: *1424571$M1*')) {
+            const trackingNumber = document.getElementById('trackingNumber').value;
+            
+            if (!trackingNumber) {
+                alert('送り状番号を入力してください。');
+                return;
+            }
+            
+            if (confirm('出荷処理を実行しますか？\n受注番号: *1424571$M1*\n送り状番号: ' + trackingNumber)) {
                 // ここでバックエンドAPIまたはIDOメソッドを呼び出し
-                console.log('Processing order: 1424571$M1');
+                console.log('Processing order: 1424571$M1, Tracking: ' + trackingNumber);
                 
                 // 処理中の表示
                 const processBtn = event.target;
