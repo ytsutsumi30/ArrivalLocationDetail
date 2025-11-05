@@ -230,6 +230,26 @@
             box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
         }
         
+        .delivery-display {
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            padding: 6px 10px;
+            background: white;
+            border-radius: 3px;
+            border: 2px solid #333;
+            cursor: pointer;
+            font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .delivery-display:hover {
+            background: #f9f9f9;
+        }
+        
         .quantity-section {
             width: 100%;
             display: grid;
@@ -498,7 +518,11 @@
                                class="delivery-input" 
                                id="deliveryDate" 
                                value="2025-10-31"
-                               onchange="updateDeliveryDisplay()">
+                               onchange="updateDeliveryDisplay()"
+                               style="position: absolute; opacity: 0; pointer-events: none;">
+                        <div class="delivery-display" id="deliveryDisplay" onclick="document.getElementById('deliveryDate').showPicker()">
+                            10/31(木)
+                        </div>
                     </div>
                 </div>
                 <div class="quantity-section">
@@ -573,6 +597,7 @@
         // 納期の表示更新
         function updateDeliveryDisplay() {
             const dateInput = document.getElementById('deliveryDate');
+            const displayElement = document.getElementById('deliveryDisplay');
             const selectedDate = new Date(dateInput.value);
             
             // 日本語の曜日を取得
@@ -583,6 +608,9 @@
             const month = selectedDate.getMonth() + 1;
             const day = selectedDate.getDate();
             const formattedDate = `${month}/${day}(${dayOfWeek})`;
+            
+            // 表示要素を更新
+            displayElement.textContent = formattedDate;
             
             console.log('納期変更:', formattedDate);
             
