@@ -270,8 +270,8 @@
         }
         
         .quantity-box {
-            background: white;
-            border: 2px solid #333;
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
             border-radius: 4px;
             padding: 6px 10px;
             width: 100%;
@@ -337,8 +337,8 @@
             align-items: center;
             justify-content: center;
             padding: 6px 10px;
-            background: white;
-            border: 2px solid #333;
+            background:  #fafafa;
+            border: 1px solid #e0e0e0;
             border-radius: 4px;
             width: 48%;
         }
@@ -598,7 +598,6 @@
         // 納期の表示更新
         function updateDeliveryDisplay() {
             const dateInput = document.getElementById('deliveryDate');
-            const displayElement = document.getElementById('deliveryDisplay');
             const selectedDate = new Date(dateInput.value);
             
             // 日本語の曜日を取得
@@ -609,9 +608,6 @@
             const month = selectedDate.getMonth() + 1;
             const day = selectedDate.getDate();
             const formattedDate = `${month}/${day}(${dayOfWeek})`;
-            
-            // 表示要素を更新
-            displayElement.textContent = formattedDate;
             
             console.log('納期変更:', formattedDate);
             
