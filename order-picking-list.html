@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>受注オーダー出荷 - 受注番号 *1424571$M1*</title>
+    <link href="https://cdn.jsdelivr.net/npm/ids-enterprise@latest/dist/css/theme-new-light.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/ids-enterprise@latest/dist/css/ids-enterprise.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding: 5px;
+            margin: 0;
+            height: 100vh;
+            overflow: auto;
+        }
+        
+        .container {
+            max-width: 768px;
+            width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            padding: 10px;
+            min-height: calc(100vh - 10px);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .title {
+            width: 100%;
+        }
+        
+        .title h1 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .order-number-section {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        
+        .order-number-label {
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .barcode-section {
+            text-align: center;
+            padding: 5px;
+            background: #f9f9f9;
+            border-radius: 3px;
+        }
+        
+        .barcode-img {
+            width: 150px;
+            height: 30px;
+            background: repeating-linear-gradient(90deg, #000 0px, #000 2px, transparent 2px, transparent 4px);
+            margin: 0 auto;
+        }
+        
+        .barcode-text {
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            margin-top: 2px;
+            font-weight: bold;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .info-section {
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 6px 8px;
+            background: #fafafa;
+        }
+        
+        .info-label {
+            font-size: 9px;
+            color: #666;
+            margin-bottom: 2px;
+            font-weight: 600;
+        }
+        
+        .info-value {
+            font-size: 12px;
+            color: #333;
+            font-weight: 500;
+            word-break: break-all;
+        }
+        
+        .info-value.large {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .product-section {
+            border: 2px solid #333;
+            border-radius: 4px;
+            padding: 8px;
+            margin-bottom: 8px;
+            background: #f0f7ff;
+        }
+        
+        .product-header {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #cce5ff;
+        }
+        
+        .product-code-section {
+            width: 100%;
+            margin-bottom: 8px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+        
+        .product-code-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .product-code-label {
+            font-size: 9px;
+            color: #666;
+            margin-bottom: 2px;
+            font-weight: 600;
+        }
+        
+        .product-code-value {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 2px;
+        }
+        
+        .product-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 2px;
+            letter-spacing: 0.5px;
+        }
+        
+        .product-item-value {
+            font-size: 13px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 2px;
+        }
+        
+        .delivery-date {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 4px;
+            padding: 6px 10px;
+            background: white;
+            border-radius: 3px;
+            border: 1px solid #333;
+            cursor: pointer;
+        }
+        
+        .delivery-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 6px;
+        }
+        
+        .delivery-label {
+            font-size: 11px;
+            color: #666;
+            font-weight: 600;
+            min-width: 40px;
+        }
+        
+        .delivery-input-wrapper {
+            position: relative;
+            flex: 1;
+        }
+        
+        .delivery-input {
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            padding: 6px 10px;
+            background: white;
+            border-radius: 3px;
+            border: 2px solid #333;
+            cursor: pointer;
+            font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .delivery-input:focus {
+            outline: none;
+            border-color: #555;
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+        }
+        
+        .quantity-section {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+        }
+        
+        .quantity-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .quantity-label {
+            font-size: 9px;
+            color: #666;
+            margin-bottom: 3px;
+            font-weight: 600;
+        }
+        
+        .quantity-box {
+            background: white;
+            border: 2px solid #333;
+            border-radius: 4px;
+            padding: 6px 10px;
+            width: 100%;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .quantity-display {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            width: 100%;
+        }
+        
+        .quantity-input {
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            border: none;
+            background: transparent;
+            outline: none;
+            height: 100%;
+        }
+        
+        .stock-quantity {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+        
+        .product-barcode {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #cce5ff;
+        }
+        
+        .barcode-detail {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 48%;
+        }
+        
+        .barcode-detail-img {
+            width: 100%;
+            max-width: 120px;
+            height: 25px;
+            background: repeating-linear-gradient(90deg, #000 0px, #000 2px, transparent 2px, transparent 4px);
+        }
+        
+        .shipping-company {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 10px;
+            background: white;
+            border: 2px solid #333;
+            border-radius: 4px;
+            width: 48%;
+        }
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: 0.75fr 0.75fr 0.75fr 1.75fr;
+            gap: 6px;
+            margin-bottom: 0;
+        }
+        
+        .detail-item {
+            padding: 6px 8px;
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-radius: 3px;
+        }
+        
+        .supplier-section {
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 3px 4px;
+            background: #fafafa;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            justify-content: flex-start;
+        }
+        
+        .section-title {
+            font-size: 11px;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            border: none;
+            min-width: 40px;
+        }
+        
+        .address-content {
+            text-align: left;
+            font-size: 12px;
+            color: #333;
+        }
+        
+        .address-line {
+            margin: 2px 0;
+            font-size: 12px;
+            color: #333;
+            text-align: left;
+        }
+        
+        .address-icon {
+            margin-right: 2px;
+            margin-left: 2px;
+            color: #666;
+        }
+        
+        .button-area {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 2px solid #e0e0e0;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 50%;
+        }
+        
+        .btn-back {
+            background-color: #f5f5f5;
+            color: #333;
+            border: 2px solid #333;
+        }
+        
+        .btn-back:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .btn-process {
+            background-color: #333;
+            color: white;
+            border: 2px solid #333;
+        }
+        
+        .btn-process:hover {
+            background-color: #555;
+            border-color: #555;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .button-area {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ヘッダー部 -->
+        <div class="header">
+            <div class="title">
+                <h1>受注オーダー出荷</h1>
+                <div class="order-number-section">
+                    <span class="order-number-label">受注番号：*1424571$M1*</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 印刷区分・製造元情報 -->
+        <div class="info-grid">
+            <div class="info-section">
+                <div class="info-label">印刷区分名</div>
+                <div class="info-value">(C1、WE、WTのみ)※郡山</div>
+            </div>
+            <div class="info-section">
+                <div class="info-label">得意先略称</div>
+                <div class="info-value">(株)村田製作所</div>
+            </div>
+            <div class="info-section">
+                <div class="info-label">製造元　客先注番</div>
+                <div class="info-value"><strong>WT</strong>　　KM9HT0003</div>
+            </div>
+            <div class="info-section">
+                <div class="info-label">ロケーション</div>
+                <div class="info-value"></div>
+            </div>
+        </div>
+
+        <!-- 商品情報セクション -->
+        <div class="product-section">
+            <div class="product-header">
+                <div class="product-code-section">
+                    <div class="product-code-item">
+                        <div class="product-code-label">得意先コード</div>
+                        <div class="product-code-value">0999</div>
+                    </div>
+                    <div class="product-code-item">
+                        <div class="product-code-label">品目名</div>
+                        <div class="product-code-value">PKLX0570</div>
+                    </div>
+                    <div class="product-code-item">
+                        <div class="product-code-label">商品コード</div>
+                        <div class="product-code-value">PKLX0570</div>
+                    </div>
+                </div>
+                <div class="delivery-section">
+                    <div class="delivery-label">納期</div>
+                    <div class="delivery-input-wrapper">
+                        <input type="date" 
+                               class="delivery-input" 
+                               id="deliveryDate" 
+                               value="2025-10-31"
+                               onchange="updateDeliveryDisplay()">
+                    </div>
+                </div>
+                <div class="quantity-section">
+                    <div class="quantity-item">
+                        <div class="quantity-label">出庫数量</div>
+                        <div class="quantity-box">
+                            <input type="text" 
+                                   class="quantity-input" 
+                                   id="shipQuantity" 
+                                   value="44,910"
+                                   placeholder="数量を入力">
+                        </div>
+                    </div>
+                    <div class="quantity-item">
+                        <div class="quantity-label">在庫数量</div>
+                        <div class="quantity-box">
+                            <div class="quantity-display">179,676</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 運送会社情報 -->
+            <div class="product-barcode">
+                <div class="barcode-detail">
+                    <div class="info-label" style="font-size: 11px; margin-bottom: 4px;">納品先コード</div>
+                    <div class="barcode-detail-img" style="height: 35px; max-width: 140px;"></div>
+                    <div class="barcode-text" style="font-size: 12px; margin-top: 3px;">*00C099905*</div>
+                </div>
+                <div class="shipping-company">
+                    <div class="info-label">運送会社</div>
+                    <div class="info-value" style="font-size: 13px; font-weight: bold; margin-top: 2px;">西濃　長岡支店</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 詳細情報グリッド -->
+        <div class="details-grid">
+            <div class="detail-item">
+                <div class="info-label">得意先コード</div>
+                <div class="info-value">0999</div>
+            </div>
+            <div class="detail-item">
+                <div class="info-label">納入先コード</div>
+                <div class="info-value">0</div>
+            </div>
+            <div class="detail-item">
+                <div class="info-label">〒</div>
+                <div class="info-value">923-8626</div>
+            </div>
+            <div class="detail-item">
+                <div class="info-label">納入先名称</div>
+                <div class="info-value">㈱小松村田製作所　納品受付係</div>
+            </div>
+        </div>
+
+        <!-- 住所セクション -->
+        <div class="supplier-section">
+            <div class="section-title">住所</div>
+            <div class="address-content">
+                <span class="address-icon">①</span>
+                <strong>石川県小松市光町93</strong>
+            </div>
+        </div>
+
+        <!-- ボタンエリア -->
+        <div class="button-area">
+            <button class="btn btn-back" onclick="goBack()">戻る</button>
+            <button class="btn btn-process" onclick="processOrder()">処理</button>
+        </div>
+    </div>
+
+    <script>
+        // 納期の表示更新
+        function updateDeliveryDisplay() {
+            const dateInput = document.getElementById('deliveryDate');
+            const selectedDate = new Date(dateInput.value);
+            
+            // 日本語の曜日を取得
+            const daysOfWeek = ['日', '月', '火', '水', '木', '金', '土'];
+            const dayOfWeek = daysOfWeek[selectedDate.getDay()];
+            
+            // MM/DD(曜日)形式に変換
+            const month = selectedDate.getMonth() + 1;
+            const day = selectedDate.getDate();
+            const formattedDate = `${month}/${day}(${dayOfWeek})`;
+            
+            console.log('納期変更:', formattedDate);
+            
+            // 実際のシステムでは、この値をIDOに保存する処理を追加
+        }
+
+        // 戻るボタンの処理
+        function goBack() {
+            // 実際のシステムでは前の画面に戻る処理を実装
+            if (confirm('前の画面に戻りますか？')) {
+                window.history.back();
+                // または特定のURLに遷移
+                // window.location.href = '/order-list';
+            }
+        }
+
+        // 処理ボタンの処理
+        function processOrder() {
+            // 実際のシステムでは出荷処理を実行
+            if (confirm('出荷処理を実行しますか？\n受注番号: *1424571$M1*')) {
+                // ここでバックエンドAPIまたはIDOメソッドを呼び出し
+                console.log('Processing order: 1424571$M1');
+                
+                // 処理中の表示
+                const processBtn = event.target;
+                processBtn.disabled = true;
+                processBtn.textContent = '処理中...';
+                
+                // 実際の処理（例：IDOのSaveメソッド呼び出し）
+                setTimeout(() => {
+                    alert('出荷処理が完了しました。');
+                    // 処理完了後の遷移
+                    // window.location.href = '/order-complete';
+                    processBtn.disabled = false;
+                    processBtn.textContent = '処理';
+                }, 1000);
+            }
+        }
+
+        // 印刷機能
+        function printDocument() {
+            window.print();
+        }
+
+        // キーボードショートカット（Ctrl+P で印刷）
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                printDocument();
+            }
+        });
+
+        // データバインディング用の関数（実際のシステムではIDOから取得）
+        function loadOrderData(orderNumber) {
+            // ここでバックエンドAPIまたはIDOからデータを取得
+            console.log('Loading order:', orderNumber);
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Order Shipping initialized');
+            // loadOrderData('1424571$M1');
+            
+            // 納期の初期表示を設定
+            updateDeliveryDisplay();
+        });
+    </script>
+</body>
+</html>
